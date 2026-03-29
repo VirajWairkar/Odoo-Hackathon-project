@@ -11,22 +11,21 @@ app.use(cors({
 }));
 app.use(express.json());
 
-// Test Route
+// Test route
 app.get('/', (req, res) => {
   res.send('Backend Running ✅');
 });
 
-// MongoDB Connection
+// MongoDB
 mongoose.connect(process.env.MONGO_URI)
 .then(() => console.log("MongoDB Connected ✅"))
 .catch(err => console.log(err));
 
-// Routes ✅ (MOVE HERE)
+// Routes
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/expense', require('./routes/expense'));
 
-// Start Server (LAST)
+// Start server
 app.listen(5000, () => {
   console.log('Server running on port 5000');
 });
-

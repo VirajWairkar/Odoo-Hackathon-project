@@ -19,7 +19,7 @@ router.post('/', async (req, res) => {
   res.json(expense);
 });
 
-// Get all expenses ✅
+// Get all expenses
 router.get('/all', async (req, res) => {
   const expenses = await Expense.find();
   res.json(expenses);
@@ -30,6 +30,10 @@ router.post('/approve', async (req, res) => {
   const { expenseId } = req.body;
 
   const expense = await Expense.findById(expenseId);
+
+  if (!expense) {
+    return res.status(404).json({ msg: "Not found" });
+  }
 
   expense.approvals[0].status = "Approved";
   expense.status = "Approved";

@@ -8,7 +8,20 @@ function App() {
     return <Login />;
   }
 
-  return <Expense />;
+  // Role-based UI
+  if (user.role === "Employee") {
+    return <Expense />;
+  }
+
+  if (user.role === "Manager") {
+    return <Expense />;
+  }
+
+  if (user.role === "Admin") {
+    return <Expense />;
+  }
+
+  return <Login />;
 }
 
 export default App;

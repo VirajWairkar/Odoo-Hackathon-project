@@ -6,7 +6,9 @@ export default function Expense() {
   const [title, setTitle] = useState("");
   const [amount, setAmount] = useState("");
 
-  // 🔹 Fetch all expenses
+  const user = JSON.parse(localStorage.getItem("user"));
+
+  // Fetch expenses
   const fetchExpenses = async () => {
     const res = await axios.get("http://localhost:5000/api/expense/all");
     setExpenses(res.data);
@@ -16,10 +18,8 @@ export default function Expense() {
     fetchExpenses();
   }, []);
 
-  // 🔹 Submit new expense
+  // Submit expense
   const submit = async () => {
-    const user = JSON.parse(localStorage.getItem("user"));
-
     await axios.post("http://localhost:5000/api/expense", {
       title,
       amount,
@@ -32,7 +32,7 @@ export default function Expense() {
     fetchExpenses();
   };
 
-  // 🔹 Approve expense
+  // Approve expense
   const approve = async (id) => {
     await axios.post("http://localhost:5000/api/expense/approve", {
       expenseId: id
@@ -42,28 +42,44 @@ export default function Expense() {
     fetchExpenses();
   };
 
+  // Logout
+  const logout = () => {
+    localStorage.clear();
+    window.location.reload();
+  };
+
   return (
     <div>
-      <h2>Submit Expense</h2>
+      <h2>Welcome {user.name} ({user.role})</h2>
 
-      {/* 🔹 Form */}
-      <input
-        placeholder="Title"
-        value={title}
-        onChange={(e) => setTitle(e.target.value)}
-      />
-      <input
-        placeholder="Amount"
-        value={amount}
-        onChange={(e) => setAmount(e.target.value)}
-      />
-
-      <button onClick={submit}>Submit</button>
+      <button onClick={logout}>Logout</button>
 
       <hr />
 
-      {/* 🔹 List */}
-      <h2>All Expenses</h2>
+      {/* Employee only */}
+      {user.role === "Employee" && (
+        <>
+          <h3>Submit Expense</h3>
+
+          <input
+            placeholder="Title"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+          />
+
+          <input
+            placeholder="Amount"
+            value={amount}
+            onChange={(e) => setAmount(e.target.value)}
+          />
+
+          <button onClick={submit}>Submit</button>
+
+          <hr />
+        </>
+      )}
+
+      <h3>All Expenses</h3>
 
       {expenses.map((e) => (
         <div key={e._id}>
@@ -71,8 +87,8 @@ export default function Expense() {
             {e.title} - ₹{e.amount} - {e.status}
           </p>
 
-          {/* Show approve button only if pending */}
-          {e.status === "Pending" && (
+          {/* Only Manager can approve */}
+          {user.role === "Manager" && e.status === "Pending" && (
             <button onClick={() => approve(e._id)}>
               Approve
             </button>
