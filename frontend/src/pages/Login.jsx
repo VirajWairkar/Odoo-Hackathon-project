@@ -1,5 +1,6 @@
 import { useState } from "react";
 import axios from "axios";
+import { TextField, Button, Card, CardContent } from "@mui/material";
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -12,20 +13,46 @@ export default function Login() {
     });
 
     localStorage.setItem("user", JSON.stringify(res.data));
-
-    const user = JSON.parse(localStorage.getItem("user"));
-
-    console.log(user.role);
+    window.location.reload();
   };
 
   return (
-    <div>
-      <h2>Login</h2>
+    <div style={{
+      height: "100vh",
+      display: "flex",
+      justifyContent: "center",
+      alignItems: "center",
+      background: "linear-gradient(to right, #667eea, #764ba2)"
+    }}>
+      <Card style={{ width: "350px", padding: "20px", borderRadius: "15px" }}>
+        <CardContent>
+          <h2 style={{ textAlign: "center" }}>🚀 Smart Reimbursement</h2>
 
-      <input placeholder="Email" onChange={e => setEmail(e.target.value)} />
-      <input placeholder="Password" type="password" onChange={e => setPassword(e.target.value)} />
+          <TextField
+            label="Email"
+            fullWidth
+            margin="normal"
+            onChange={(e) => setEmail(e.target.value)}
+          />
 
-      <button onClick={login}>Login</button>
+          <TextField
+            label="Password"
+            type="password"
+            fullWidth
+            margin="normal"
+            onChange={(e) => setPassword(e.target.value)}
+          />
+
+          <Button
+            variant="contained"
+            fullWidth
+            style={{ marginTop: "15px", backgroundColor: "#667eea" }}
+            onClick={login}
+          >
+            Login
+          </Button>
+        </CardContent>
+      </Card>
     </div>
   );
 }

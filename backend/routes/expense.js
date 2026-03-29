@@ -5,9 +5,17 @@ const Expense = require('../models/Expense');
 router.post('/', async (req, res) => {
   const { title, amount, userId } = req.body;
 
-  const approvals = [
+  let approvals = [
     { role: "Manager", status: "Pending" }
   ];
+
+  // Bonus logic (multi-level)
+  if (amount > 1000) {
+    approvals = [
+      { role: "Manager", status: "Pending" },
+      { role: "Admin", status: "Pending" }
+    ];
+  }
 
   const expense = await Expense.create({
     title,
@@ -31,12 +39,17 @@ router.post('/approve', async (req, res) => {
 
   const expense = await Expense.findById(expenseId);
 
-  if (!expense) {
-    return res.status(404).json({ msg: "Not found" });
+  if (!expense) return res.status(404).json({ msg: "Not found" });
+
+  const pending = expense.approvals.find(a => a.status === "Pending");
+
+  if (pending) {
+    pending.status = "Approved";
   }
 
-  expense.approvals[0].status = "Approved";
-  expense.status = "Approved";
+  if (expense.approvals.every(a => a.status === "Approved")) {
+    expense.status = "Approved";
+  }
 
   await expense.save();
 

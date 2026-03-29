@@ -1,5 +1,10 @@
+<h2 style={{ color: "#667eea" }}>
+  🚀 Smart Reimbursement System
+</h2>
+
 import { useEffect, useState } from "react";
 import axios from "axios";
+import { TextField, Button, Card, CardContent } from "@mui/material";
 
 export default function Expense() {
   const [expenses, setExpenses] = useState([]);
@@ -8,7 +13,6 @@ export default function Expense() {
 
   const user = JSON.parse(localStorage.getItem("user"));
 
-  // Fetch expenses
   const fetchExpenses = async () => {
     const res = await axios.get("http://localhost:5000/api/expense/all");
     setExpenses(res.data);
@@ -18,7 +22,6 @@ export default function Expense() {
     fetchExpenses();
   }, []);
 
-  // Submit expense
   const submit = async () => {
     await axios.post("http://localhost:5000/api/expense", {
       title,
@@ -26,74 +29,88 @@ export default function Expense() {
       userId: user._id
     });
 
-    alert("Expense submitted ✅");
     setTitle("");
     setAmount("");
     fetchExpenses();
   };
 
-  // Approve expense
   const approve = async (id) => {
     await axios.post("http://localhost:5000/api/expense/approve", {
       expenseId: id
     });
 
-    alert("Approved ✅");
     fetchExpenses();
   };
 
-  // Logout
   const logout = () => {
     localStorage.clear();
     window.location.reload();
   };
 
   return (
-    <div>
-      <h2>Welcome {user.name} ({user.role})</h2>
+    
+    <div style={{ padding: "20px", background: "#f4f6f8", minHeight: "100vh" }}>
 
-      <button onClick={logout}>Logout</button>
+      {/* HEADER */}
+      <div style={{ display: "flex", justifyContent: "space-between" }}>
+        <h1>💼 Smart Reimbursement</h1>
+        <Button variant="outlined" onClick={logout}>Logout</Button>
+      </div>
 
-      <hr />
+      <h3>Welcome {user.name} ({user.role})</h3>
 
-      {/* Employee only */}
+      {/* EMPLOYEE FORM */}
       {user.role === "Employee" && (
-        <>
-          <h3>Submit Expense</h3>
+        <Card style={{ marginBottom: "20px", borderRadius: "12px" }}>
+          <CardContent>
+            <h3>➕ Submit Expense</h3>
 
-          <input
-            placeholder="Title"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-          />
+            <TextField
+              label="Title"
+              fullWidth
+              margin="normal"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+            />
 
-          <input
-            placeholder="Amount"
-            value={amount}
-            onChange={(e) => setAmount(e.target.value)}
-          />
+            <TextField
+              label="Amount"
+              fullWidth
+              margin="normal"
+              value={amount}
+              onChange={(e) => setAmount(e.target.value)}
+            />
 
-          <button onClick={submit}>Submit</button>
-
-          <hr />
-        </>
+            <Button variant="contained" onClick={submit}>
+              Submit
+            </Button>
+          </CardContent>
+        </Card>
       )}
 
-      <h3>All Expenses</h3>
+      {/* EXPENSE LIST */}
+      <h3>📊 All Expenses</h3>
 
       {expenses.map((e) => (
-        <div key={e._id}>
-          <p>
-            {e.title} - ₹{e.amount} - {e.status}
-          </p>
+        <Card key={e._id} style={{ marginBottom: "10px", borderRadius: "12px" }}>
+          <CardContent>
+            <h3>{e.title}</h3>
+            <p>Amount: ₹{e.amount}</p>
 
-          {/* Only Manager can approve */}
-          {user.role === "Manager" && e.status === "Pending" && (
-            <button onClick={() => approve(e._id)}>
-              Approve
-            </button>
-          )}
-        </div>
+            <p style={{
+              fontWeight: "bold",
+              color: e.status === "Approved" ? "green" : "orange"
+            }}>
+              {e.status}
+            </p>
+
+            {user.role === "Manager" && e.status === "Pending" && (
+              <Button variant="contained" color="success" onClick={() => approve(e._id)}>
+                Approve
+              </Button>
+            )}
+          </CardContent>
+        </Card>
       ))}
     </div>
   );
